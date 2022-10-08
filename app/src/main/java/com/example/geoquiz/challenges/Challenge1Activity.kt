@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.Toast
 import com.example.geoquiz.R
+import com.google.android.material.snackbar.Snackbar
 
 class Challenge1Activity : AppCompatActivity() {
     private lateinit var trueButton: Button
@@ -18,20 +19,19 @@ class Challenge1Activity : AppCompatActivity() {
         falseButton = findViewById(R.id.false_button)
 
         trueButton.setOnClickListener { view ->
-            Toast.makeText(
-                this,
-                R.string.correct_toast,
-                Toast.LENGTH_SHORT
+            Snackbar.make(
+                /* view = */ view,
+                /* resId = */ R.string.correct_toast,
+                /* duration = */ Snackbar.LENGTH_SHORT
             ).show()
         }
 
         falseButton.setOnClickListener { view ->
-            Toast.makeText(
-                this,
-                R.string.incorrect_toast,
-                Toast.LENGTH_SHORT
+            Snackbar.make(
+                /* view = */ view,
+                /* resId = */ R.string.incorrect_toast,
+                /* duration = */ Snackbar.LENGTH_SHORT
             ).show()
-
         }
     }
 }
