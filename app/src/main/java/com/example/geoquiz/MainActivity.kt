@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.activity.viewModels
 import com.example.geoquiz.databinding.ActivityMainBinding
 import com.google.android.material.snackbar.Snackbar
 
@@ -13,17 +14,7 @@ private const val TAG = "MainActivity"
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
-    private val questionBank = listOf(
-        Question(R.string.question_australia, true),
-        Question(R.string.question_oceans, true),
-        Question(R.string.question_mideast, false),
-        Question(R.string.question_africa, false),
-        Question(R.string.question_americas, true),
-        Question(R.string.question_asia, true),
-    )
-
-    private var currentScore = 0.0
-    private var currentIndex = 0
+    private val quizViewModel: QuizViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,11 +23,11 @@ class MainActivity : AppCompatActivity() {
             ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        savedInstanceState?.apply {
-            currentIndex = getInt("currentIndex")
-            binding.trueButton.isEnabled = getBoolean("isTrueBtnEnabled")
-            binding.falseButton.isEnabled = getBoolean("isFalseBtnEnabled")
-        }
+        Log.d(TAG, "Got a QuizViewModel: $quizViewModel")
+
+//        savedInstanceState?.apply {
+//            buttonsActive = getBoolean("areButtonsActive")
+//        }
 
         binding.trueButton.setOnClickListener { view ->
             checkAnswer(true, view)
@@ -47,21 +38,21 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.nextButton.setOnClickListener { view ->
-            currentIndex = (currentIndex + 1) % questionBank.size
+            quizViewModel.moveToNext()
             updateQuestion()
-            binding.trueButton.isEnabled = true
-            binding.falseButton.isEnabled = true
+            areButtonsActive(true)
         }
 
+        areButtonsActive(quizViewModel.buttonsActive)
         updateQuestion()
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putInt("currentIndex", currentIndex)
-        outState.putBoolean("isTrueBtnEnabled", binding.trueButton.isEnabled)
-        outState.putBoolean("isFalseBtnEnabled", binding.falseButton.isEnabled)
-    }
+//    override fun onSaveInstanceState(outState: Bundle) {
+//        super.onSaveInstanceState(outState)
+//        outState.apply {
+//            putBoolean("areButtonsActive", buttonsActive)
+//        }
+//    }
 
     override fun onStart() {
         super.onStart()
@@ -88,19 +79,24 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "onDestroy() called")
     }
 
+    private fun areButtonsActive(isActive: Boolean) {
+        quizViewModel.buttonsActive = isActive
+        binding.trueButton.isEnabled = isActive
+        binding.falseButton.isEnabled = isActive
+    }
 
     private fun updateQuestion() {
         val questionTextResId =
-            questionBank[currentIndex].textResId
+            quizViewModel.currentQuestionText
         binding.questionTextView.setText(questionTextResId)
     }
 
     private fun checkAnswer(userAnswer: Boolean, view: View) {
         val correctAnswer =
-            questionBank[currentIndex].answer
+            quizViewModel.currentQuestionAnswer
 
         val messageResId = if (userAnswer == correctAnswer) {
-            currentScore++
+            quizViewModel.answerIsCorrect()
             R.string.correct_toast
         } else {
             R.string.incorrect_toast
@@ -112,21 +108,23 @@ class MainActivity : AppCompatActivity() {
             Toast.LENGTH_SHORT
         ).show()
 
-        binding.trueButton.isEnabled = false
-        binding.falseButton.isEnabled = false
+        areButtonsActive(false)
 
-        if (currentIndex == questionBank.lastIndex) {
-            val record = (currentScore / questionBank.size * 100).toInt().let { percentage ->
-                val csInt = currentScore.toInt()
-                "True: $csInt / False: ${questionBank.size - csInt} / Percentage: $percentage%"
-            }
+        if (quizViewModel.currentIndex == quizViewModel.questionBank.lastIndex) {
+            val questionSize = quizViewModel.questionBank.size
+            val currentScore = quizViewModel.currentScore
+            val record =
+                (currentScore / questionSize * 100).toInt().let { percentage ->
+                    val csInt = currentScore.toInt()
+                    "True: $csInt / False: ${questionSize - csInt} / Percentage: $percentage%"
+                }
             Snackbar.make(
                 view,
                 record,
                 Snackbar.LENGTH_SHORT
             ).show()
 
-            currentScore = 0.0
+            quizViewModel.resetScore()
         }
     }
 }
