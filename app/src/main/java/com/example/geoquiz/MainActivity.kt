@@ -25,10 +25,6 @@ class MainActivity : AppCompatActivity() {
 
         Log.d(TAG, "Got a QuizViewModel: $quizViewModel")
 
-//        savedInstanceState?.apply {
-//            buttonsActive = getBoolean("areButtonsActive")
-//        }
-
         binding.trueButton.setOnClickListener { view ->
             checkAnswer(true, view)
         }
@@ -46,13 +42,6 @@ class MainActivity : AppCompatActivity() {
         areButtonsActive(quizViewModel.buttonsActive)
         updateQuestion()
     }
-
-//    override fun onSaveInstanceState(outState: Bundle) {
-//        super.onSaveInstanceState(outState)
-//        outState.apply {
-//            putBoolean("areButtonsActive", buttonsActive)
-//        }
-//    }
 
     override fun onStart() {
         super.onStart()

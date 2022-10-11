@@ -3,7 +3,6 @@ package com.example.geoquiz
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 
-private const val TAG = "QuizViewModel"
 const val CURRENT_INDEX_KEY = "CURRENT_INDEX_KEY"
 const val CURRENT_SCORE_KEY = "CURRENT_SCORE_KEY"
 const val BUTTONS_ACTIVE_KEY = "BUTTONS_ACTIVE_KEY"
@@ -20,14 +19,14 @@ class QuizViewModel(
         Question(R.string.question_asia, true),
     )
 
-    var currentScore: Double
+    private var currentScore: Double
         get() = savedStateHandle[CURRENT_SCORE_KEY] ?: 0.0
         set(value) =
             savedStateHandle.set(CURRENT_SCORE_KEY, value)
 
     var currentIndex: Int
         get() = savedStateHandle[CURRENT_INDEX_KEY] ?: 0
-        set(value) =
+        private set(value) =
             savedStateHandle.set(CURRENT_INDEX_KEY, value)
 
     var buttonsActive: Boolean
