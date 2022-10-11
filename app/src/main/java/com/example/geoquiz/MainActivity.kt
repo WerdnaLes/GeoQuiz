@@ -1,5 +1,6 @@
 package com.example.geoquiz
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -7,11 +8,13 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import com.example.geoquiz.databinding.ActivityMainBinding
+
 import com.google.android.material.snackbar.Snackbar
 
 private const val TAG = "MainActivity"
 
 class MainActivity : AppCompatActivity() {
+
     private lateinit var binding: ActivityMainBinding
 
     private val quizViewModel: QuizViewModel by viewModels()
@@ -37,6 +40,13 @@ class MainActivity : AppCompatActivity() {
             quizViewModel.moveToNext()
             updateQuestion()
             areButtonsActive(true)
+        }
+
+        binding.cheatButton.setOnClickListener { view ->
+            val answerIsTrue = quizViewModel.currentQuestionAnswer
+            val intent =
+                CheatActivity.newIntent(this@MainActivity, answerIsTrue)
+            startActivity(intent)
         }
 
         areButtonsActive(quizViewModel.buttonsActive)

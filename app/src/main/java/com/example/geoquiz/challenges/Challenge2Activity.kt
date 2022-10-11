@@ -12,11 +12,7 @@ import com.example.geoquiz.databinding.ActivityChallenge2Binding
 
 class Challenge2Activity : AppCompatActivity() {
 
-    private lateinit var trueButton: Button
-    private lateinit var falseButton: Button
-    private lateinit var nextButton: Button
-    private lateinit var prevButton: Button
-    private lateinit var question: TextView
+    private lateinit var binding: ActivityChallenge2Binding
 
 
     private val questionBank = listOf(
@@ -32,29 +28,24 @@ class Challenge2Activity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_challenge2)
+        binding =
+            ActivityChallenge2Binding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        trueButton = findViewById(R.id.true_button)
-        falseButton = findViewById(R.id.false_button)
-        nextButton = findViewById(R.id.next_button)
-        prevButton = findViewById(R.id.prev_button)
-        question = findViewById(R.id.question_text_view)
-
-
-        trueButton.setOnClickListener { view ->
+        binding.trueButton.setOnClickListener { view ->
             checkAnswer(true)
         }
 
-        falseButton.setOnClickListener { view ->
+        binding.falseButton.setOnClickListener { view ->
             checkAnswer(false)
         }
 
-        nextButton.setOnClickListener { view ->
+        binding.nextButton.setOnClickListener { view ->
             currentIndex = (currentIndex + 1) % questionBank.size
             updateQuestion()
         }
 
-        prevButton.setOnClickListener { view ->
+        binding.prevButton.setOnClickListener { view ->
             currentIndex = when {
                 currentIndex - 1 < 0 -> questionBank.lastIndex
                 else -> currentIndex - 1
@@ -62,7 +53,7 @@ class Challenge2Activity : AppCompatActivity() {
             updateQuestion()
         }
 
-        question.setOnClickListener { view ->
+        binding.questionTextView.setOnClickListener { view ->
             currentIndex = (currentIndex + 1) % questionBank.size
             updateQuestion()
         }
@@ -73,7 +64,7 @@ class Challenge2Activity : AppCompatActivity() {
     private fun updateQuestion() {
         val questionTextResId =
             questionBank[currentIndex].textResId
-        question.setText(questionTextResId)
+        binding.questionTextView.setText(questionTextResId)
     }
 
     private fun checkAnswer(userAnswer: Boolean) {
