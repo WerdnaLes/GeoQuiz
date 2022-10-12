@@ -8,6 +8,7 @@ const val CURRENT_SCORE_KEY = "CURRENT_SCORE_KEY"
 const val BUTTONS_ACTIVE_KEY = "BUTTONS_ACTIVE_KEY"
 const val IS_CHEATER_KEY = "IS_CHEATER_KEY"
 const val CHEATED_ANSWERS = "CHEATED_ANSWERS"
+const val CHEAT_COUNTER_KEY = "CHEAT_COUNTER_KEY"
 
 class QuizViewModel(
     private val savedStateHandle: SavedStateHandle
@@ -29,6 +30,11 @@ class QuizViewModel(
     var cheatedAnswers: Int
         get() = savedStateHandle[CHEATED_ANSWERS] ?: 0
         set(value) = savedStateHandle.set(CHEATED_ANSWERS, value)
+
+    var cheatCounter: Int
+        get() = savedStateHandle[CHEAT_COUNTER_KEY] ?: 3
+        set(value) =
+            savedStateHandle.set(CHEAT_COUNTER_KEY, value)
 
     private var currentScore: Double
         get() = savedStateHandle[CURRENT_SCORE_KEY] ?: 0.0
@@ -55,14 +61,14 @@ class QuizViewModel(
         (currentScore / questionBank.size * 100).toInt().let { percentage ->
             val trueAnswers = currentScore.toInt()
             val falseAnswers = ((questionBank.size - trueAnswers) - cheatedAnswers).let {
-                if (it < 0) 0
-                else it
+                if (it < 0) 0 else it
             }
             "True: $trueAnswers / False: $falseAnswers / Cheated: $cheatedAnswers Percentage: $percentage%"
         }
 
     fun cheatedAnswer() {
         cheatedAnswers++
+        cheatCounter--
     }
 
     fun moveToNext() {

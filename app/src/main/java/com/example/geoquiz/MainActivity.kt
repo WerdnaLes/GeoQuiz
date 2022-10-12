@@ -1,12 +1,16 @@
 package com.example.geoquiz
 
 import android.app.Activity
+import android.graphics.RenderEffect
+import android.graphics.Shader
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.example.geoquiz.databinding.ActivityMainBinding
 import com.google.android.material.snackbar.Snackbar
@@ -36,6 +40,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         Log.d(TAG, "Got a QuizViewModel: $quizViewModel")
+        val cheatText2 = "You have ${quizViewModel.cheatCounter} cheat tokens left"
 
         binding.trueButton.setOnClickListener { view ->
             checkAnswer(true, view)
@@ -45,21 +50,27 @@ class MainActivity : AppCompatActivity() {
             checkAnswer(false, view)
         }
 
-        binding.nextButton.setOnClickListener { view ->
+        binding.nextButton.setOnClickListener {
             quizViewModel.moveToNext()
             updateQuestion()
             areButtonsActive(true)
         }
 
-        binding.cheatButton.setOnClickListener { view ->
+        binding.cheatButton.setOnClickListener {
             val answerIsTrue = quizViewModel.currentQuestionAnswer
             val intent =
                 CheatActivity.newIntent(this@MainActivity, answerIsTrue)
             cheatLauncher.launch(intent)
         }
 
+        binding.showCheatsRemainingTextView.text = cheatText2
+
         areButtonsActive(quizViewModel.buttonsActive)
         updateQuestion()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            blurCheatButton()
+        }
     }
 
     override fun onStart() {
@@ -105,8 +116,7 @@ class MainActivity : AppCompatActivity() {
 
         val messageResId = when {
             quizViewModel.isCheater -> {
-                quizViewModel.cheatedAnswer()
-                quizViewModel.isCheater = false
+                cheatingManagement()
                 R.string.judgement_toast
             }
             userAnswer == correctAnswer -> {
@@ -135,5 +145,28 @@ class MainActivity : AppCompatActivity() {
 
             quizViewModel.resetScore()
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun blurCheatButton() {
+        val effect = RenderEffect.createBlurEffect(
+            10.0f,
+            10.0f,
+            Shader.TileMode.CLAMP
+        )
+        binding.cheatButton.setRenderEffect(effect)
+    }
+
+    private fun cheatingManagement() {
+        quizViewModel.cheatedAnswer()
+        quizViewModel.isCheater = false
+        val cheatText = when {
+            quizViewModel.cheatCounter > 0 -> "You have ${quizViewModel.cheatCounter} cheat tokens left"
+            else -> {
+                binding.cheatButton.isEnabled = false
+                "You can't cheat anymore!"
+            }
+        }
+        binding.showCheatsRemainingTextView.text = cheatText
     }
 }

@@ -3,6 +3,7 @@ package com.example.geoquiz
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.example.geoquiz.databinding.ActivityCheatBinding
@@ -15,6 +16,7 @@ const val EXTRA_ANSWER_SHOWN =
 class CheatActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCheatBinding
     private var answerIsTrue = false
+    private val deviceSDK = "API Level ${Build.VERSION.SDK_INT}"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,7 +27,7 @@ class CheatActivity : AppCompatActivity() {
         answerIsTrue =
             intent.getBooleanExtra(EXTRA_ANSWER_IS_TRUE, false)
 
-        binding.showAnswerButton.setOnClickListener { view ->
+        binding.showAnswerButton.setOnClickListener {
             val answerText = when (answerIsTrue) {
                 true -> R.string.true_button
                 else -> R.string.false_button
@@ -33,6 +35,8 @@ class CheatActivity : AppCompatActivity() {
             binding.answerTextView.setText(answerText)
             setAnswerShownResult(true)
         }
+
+        binding.showDeviceApiTextView.text = deviceSDK
     }
 
     // Nice one TBH
